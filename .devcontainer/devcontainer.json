@@ -1,0 +1,16 @@
+{
+  "name": "mb-stego-decoder DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "ms-python.python",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ],
+  "forwardPorts": [5173],
+  "postCreateCommand": "npm install --prefix webapp"
+}

@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./webapp:/app
+    working_dir: /app
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+  decoder:
+    image: python:3.11-slim
+    volumes:
+      - ./scripts:/scripts
+      - ./assets:/assets
+    working_dir: /scripts
+    command: ["python3", "mbp2_decoder.py", "/assets/stego.png"]
