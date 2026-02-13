@@ -11,6 +11,30 @@ HEADER_SIZE = struct.calcsize(HEADER_FMT)
 SEED = 0x4D425032  # 'MBP2' as int
 
 
+class SimpleLCG:
+    """Simple Linear Congruential Generator matching JavaScript implementation"""
+    def __init__(self, seed):
+        self.state = seed & 0xFFFFFFFF
+    
+    def next(self):
+        # Park-Miller LCG
+        self.state = (self.state * 48271) % 2147483647
+        return self.state
+    
+    def next_int(self, max_val):
+        return self.next() % max_val
+
+
+def shuffle_array(n, seed):
+    """Fisher-Yates shuffle with matching LCG"""
+    rng = SimpleLCG(seed)
+    indices = list(range(n))
+    for i in range(len(indices) - 1, 0, -1):
+        j = rng.next_int(i + 1)
+        indices[i], indices[j] = indices[j], indices[i]
+    return indices
+
+
 def extract_lsb_payload(img_path):
     img = Image.open(img_path)
     arr = np.array(img)
@@ -19,10 +43,8 @@ def extract_lsb_payload(img_path):
     blue = flat[:, 2]
     n_pixels = blue.size
 
-    # Pseudorandom order
-    rng = np.random.default_rng(SEED)
-    order = np.arange(n_pixels)
-    rng.shuffle(order)
+    # Pseudorandom order using compatible shuffle
+    order = shuffle_array(n_pixels, SEED)
 
     # Extract LSBs
     bits = blue[order] & 1

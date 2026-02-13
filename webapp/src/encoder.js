@@ -4,28 +4,34 @@ const MAGIC = new Uint8Array([0x4D, 0x42, 0x50, 0x32]); // 'MBP2'
 const SEED = 0x4D425032; // 'MBP2' as int
 const HEADER_SIZE = 12; // magic(4) + payload_len(4) + crc32(4)
 
-// Simple PRNG matching Python's numpy.random.default_rng behavior
-class PRNG {
+// Simple LCG matching Python implementation
+class SimpleLCG {
   constructor(seed) {
-    this.state = seed;
+    this.state = seed >>> 0; // Ensure 32-bit unsigned
   }
 
   next() {
-    // Linear congruential generator (LCG)
-    // Using same constants as numpy PCG64
-    this.state = (this.state * 6364136223846793005n + 1442695040888963407n) & 0xFFFFFFFFFFFFFFFFn;
-    return Number((this.state >> 32n) & 0xFFFFFFFFn);
+    // Park-Miller LCG
+    this.state = (this.state * 48271) % 2147483647;
+    return this.state;
   }
 
-  shuffle(array) {
-    const indices = Array.from({ length: array }, (_, i) => i);
-    // Fisher-Yates shuffle with our PRNG
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = this.next() % (i + 1);
-      [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    return indices;
+  nextInt(maxVal) {
+    return this.next() % maxVal;
   }
+}
+
+// Fisher-Yates shuffle with matching LCG
+function shuffleArray(n, seed) {
+  const rng = new SimpleLCG(seed);
+  const indices = Array.from({ length: n }, (_, i) => i);
+  
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = rng.nextInt(i + 1);
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  
+  return indices;
 }
 
 // CRC32 implementation
@@ -112,8 +118,7 @@ export async function encodeMBP2(imageFile, message) {
           }
           
           // Generate pseudorandom order
-          const rng = new PRNG(BigInt(SEED));
-          const order = rng.shuffle(nPixels);
+          const order = shuffleArray(nPixels, SEED);
           
           // Encode bits into blue channel LSBs
           for (let i = 0; i < bits.length; i++) {
