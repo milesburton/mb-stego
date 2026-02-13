@@ -1,12 +1,12 @@
 # png-stego-toolkit
 
-A steganography toolkit for hiding secret messages in PNG images using LSB (Least Significant Bit) encoding. This repository contains both an encoder and decoder implementation using the MBP2 format.
+A steganography toolkit for hiding secret messages in PNG images using LSB (Least Significant Bit) encoding. Both encoder and decoder run entirely in your browser - no installation required!
 
 ## ⚡️ Project Structure
 
-- `webapp/` — Browser-based encoder webapp (React + Vite) for GitHub Pages
+- `webapp/` — Browser-based encoder and decoder (React + Vite) for GitHub Pages
+- `scripts/` — Python decoder script (optional, for automation/offline use)
 - `assets/` — Sample stego images and checksums
-- `scripts/` — Python decoder script
 
 ## 🔐 Features
 
@@ -15,36 +15,40 @@ A steganography toolkit for hiding secret messages in PNG images using LSB (Leas
 - **Pseudorandom Distribution**: Messages are distributed across pixels in pseudorandom order for security
 - **Compression**: Messages are compressed using zlib before encoding
 - **Integrity Verification**: CRC32 checksums ensure message integrity
-- **Browser-based Encoder**: No installation required - encode messages directly in your browser
-- **Python Decoder**: Command-line tool for extracting hidden messages
+- **Browser-based**: No installation required - everything runs in your browser
+- **Fully Client-side**: No data sent to any server - complete privacy
+
+## 🌐 Use the Web App (Recommended)
+
+Visit the GitHub Pages site to encode and decode messages:
+
+**[https://milesburton.github.io/png-stego-toolkit/](https://milesburton.github.io/png-stego-toolkit/)**
+
+### Features:
+- ✅ Encode messages into PNG images
+- ✅ Decode hidden messages from stego images
+- ✅ Side-by-side interface for easy workflow
+- ✅ Works entirely in your browser
+- ✅ No software installation needed
+- ✅ Complete privacy - nothing sent to servers
 
 ## 🖼️ How It Works
 
-The encoder embeds your message into a PNG image by:
+**Encoding:**
+1. Upload a PNG image (the "cover" image)
+2. Enter your secret message
+3. Download the stego image (looks identical to the original)
+
+**Decoding:**
+1. Upload a stego image
+2. Click "Extract Message"
+3. Your hidden message appears instantly
+
+The encoder embeds your message by:
 1. Compressing the message with zlib
 2. Adding a header with magic bytes (`MBP2`), length, and CRC32 checksum
 3. Distributing the bits across the blue channel's LSBs in pseudorandom order
 4. Producing a visually identical image with your hidden message
-
-The decoder reverses this process to extract the original message.
-
-## 🌐 Web Encoder
-
-Visit the GitHub Pages site to encode messages:
-[https://milesburton.github.io/png-stego-toolkit/](https://milesburton.github.io/png-stego-toolkit/)
-
-## 🧑‍💻 How to Decode
-
-1. Download the stego image
-2. Download the Python decoder script from `scripts/mbp2_decoder.py`
-3. Install dependencies:
-   ```bash
-   pip install pillow numpy
-   ```
-4. Run the decoder:
-   ```bash
-   python3 scripts/mbp2_decoder.py path/to/stego.png
-   ```
 
 ## 🚫 Important Usage Notes
 
@@ -58,7 +62,7 @@ Visit the GitHub Pages site to encode messages:
 ### MBP2 Format Specification
 
 ```
-Header (16 bytes):
+Header (12 bytes):
 - Magic: 4 bytes ('MBP2')
 - Payload Length: 4 bytes (little-endian uint32)
 - CRC32: 4 bytes (little-endian uint32)
@@ -82,6 +86,20 @@ Payload:
 - The PRNG seed is fixed and known
 - Anyone with the decoder can extract the message
 - For secure communication, encrypt your message before encoding
+
+## 🐍 Python Decoder (Optional)
+
+For automation, batch processing, or offline use, a Python decoder is available:
+
+```bash
+# Install dependencies
+pip install pillow numpy
+
+# Decode an image
+python3 scripts/mbp2_decoder.py path/to/stego.png
+```
+
+**Note:** Most users should use the web app instead - it's easier and requires no installation!
 
 ---
 
