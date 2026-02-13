@@ -1,58 +1,92 @@
-# mb-stego-decoder
+# mb-stego
 
-A cyberpunk-themed project that hides a secret message in a visually striking PNG using LSB steganography. This repo contains:
-
-- A visually identical decoy image for display
-- The real stego image (download only)
-- A Python decoder script
-- Instructions for verifying and decoding the hidden message
-- SHA256 checksum for integrity
+A steganography toolkit for hiding secret messages in PNG images using LSB (Least Significant Bit) encoding. This repository contains both an encoder and decoder implementation using the MBP2 format.
 
 ## ⚡️ Project Structure
 
-- `webapp/` — React (Vite) frontend for Netlify
-- `assets/` — Stego image, decoy image, and checksum
+- `webapp/` — Browser-based encoder webapp (React + Vite) for GitHub Pages
+- `assets/` — Sample stego images and checksums
 - `scripts/` — Python decoder script
 
-## 🚫 Important Usage Notes
+## 🔐 Features
 
-- **Do NOT embed the stego image in README, issues, or chat uploads.**
-- Only distribute the stego image as a raw download or release asset.
-- Any re-encoding (e.g., screenshot, editor save) will destroy the payload.
+- **LSB Steganography**: Hides messages in the least significant bits of image pixels
+- **MBP2 Format**: Custom format with magic header, compression, and integrity checking
+- **Pseudorandom Distribution**: Messages are distributed across pixels in pseudorandom order for security
+- **Compression**: Messages are compressed using zlib before encoding
+- **Integrity Verification**: CRC32 checksums ensure message integrity
+- **Browser-based Encoder**: No installation required - encode messages directly in your browser
+- **Python Decoder**: Command-line tool for extracting hidden messages
 
-## 🖼️ Decoy Image
+## 🖼️ How It Works
 
-A visually identical image is shown below for preview purposes:
+The encoder embeds your message into a PNG image by:
+1. Compressing the message with zlib
+2. Adding a header with magic bytes (`MBP2`), length, and CRC32 checksum
+3. Distributing the bits across the blue channel's LSBs in pseudorandom order
+4. Producing a visually identical image with your hidden message
 
-![Decoy Image](assets/decoy.png)
+The decoder reverses this process to extract the original message.
 
-## 🕵️‍♂️ Stego Image Download
+## 🌐 Web Encoder
 
-[Download the real stego image](assets/stego.png)
-
-SHA256 checksum:
-```
-<TO-BE-REPLACED>
-```
+Visit the GitHub Pages site to encode messages:
+[https://milesburton.github.io/mb-stego/](https://milesburton.github.io/mb-stego/)
 
 ## 🧑‍💻 How to Decode
 
-1. Download the stego image (see above).
-2. Download the Python decoder script from `scripts/mbp2_decoder.py`.
-3. Run the decoder:
+1. Download the stego image
+2. Download the Python decoder script from `scripts/mbp2_decoder.py`
+3. Install dependencies:
    ```bash
-   python3 scripts/mbp2_decoder.py assets/stego.png
+   pip install pillow numpy
    ```
-4. The script will extract and verify the hidden message.
+4. Run the decoder:
+   ```bash
+   python3 scripts/mbp2_decoder.py path/to/stego.png
+   ```
 
-## 📝 Decoder Script
+## 🚫 Important Usage Notes
 
-See [`scripts/mbp2_decoder.py`](scripts/mbp2_decoder.py) for the full code and usage.
+- **Do NOT re-encode the stego image** (screenshots, editor saves, compression)
+- Any modification to the image will destroy the hidden payload
+- Only distribute stego images as raw PNG downloads
+- The encoding is NOT cryptographically secure - use encryption separately if needed
+
+## 📝 Technical Details
+
+### MBP2 Format Specification
+
+```
+Header (16 bytes):
+- Magic: 4 bytes ('MBP2')
+- Payload Length: 4 bytes (little-endian uint32)
+- CRC32: 4 bytes (little-endian uint32)
+
+Payload:
+- Zlib-compressed message data
+```
+
+### Encoding Algorithm
+
+1. Message → zlib compress → payload
+2. Create header (magic + length + CRC32)
+3. Combine header + payload into byte array
+4. Convert to bit array
+5. Use PRNG (seed: 0x4D425032) to shuffle pixel indices
+6. Write each bit to LSB of blue channel in shuffled order
+
+### Security Considerations
+
+- This is steganography, not encryption
+- The PRNG seed is fixed and known
+- Anyone with the decoder can extract the message
+- For secure communication, encrypt your message before encoding
 
 ---
 
-**Design intent:** Reward curiosity, encourage low-level thinking, and appeal to engineers. The hidden message is discoverable, not advertised.
+**Design Philosophy**: A practical tool for hiding messages in plain sight, encouraging exploration of low-level data manipulation techniques.
 
 ---
 
-For Netlify deployment, see `webapp/README.md`.
+For development and deployment instructions, see `webapp/README.md`.
