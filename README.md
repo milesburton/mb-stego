@@ -1,4 +1,4 @@
-# mb-stego
+# png-stego-toolkit
 
 A steganography toolkit for hiding secret messages in PNG images using LSB (Least Significant Bit) encoding. This repository contains both an encoder and decoder implementation using the MBP2 format.
 
@@ -31,7 +31,7 @@ The decoder reverses this process to extract the original message.
 ## 🌐 Web Encoder
 
 Visit the GitHub Pages site to encode messages:
-[https://milesburton.github.io/mb-stego/](https://milesburton.github.io/mb-stego/)
+[https://milesburton.github.io/png-stego-toolkit/](https://milesburton.github.io/png-stego-toolkit/)
 
 ## 🧑‍💻 How to Decode
 
